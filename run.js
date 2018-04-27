@@ -10,6 +10,22 @@ const load = require('./utils/load')
 const example = require('./example.json')
 const jsonServer = require('../server')
 
+function collectRequestData(request, callback) {
+    const FORM_URLENCODED = 'application/x-www-form-urlencoded';
+    if(request.headers['content-type'] === FORM_URLENCODED) {
+        let body = '';
+        request.on('data', chunk => {
+            body += chunk.toString();
+        });
+        request.on('end', () => {
+            callback(parse(body));
+        });
+    }
+    else {
+        callback(null);
+    }
+}
+
 function prettyPrint (argv, object, rules) {
   const host = argv.host === '0.0.0.0' ? 'localhost' : argv.host
   const port = argv.port
